@@ -1,7 +1,9 @@
 const { text } = require('micro');
 const axios = require("axios");
-const { parse } = require('querystring')
-const addTaskForUser = require('./lib/add-task')
+const { parse } = require('querystring');
+const addTaskForUser = require('./lib/add-task');
+const finishUserTask = require('./lib/task-complete');
+const messageBlocksScanner = require('./utils/messageBlocksScanner');
 
 /*
 Slash command POST request structure --
@@ -27,92 +29,108 @@ Overflow menu POST request structure payload contains JSON string --
 
 {
 	"payload": `{
-		"type": "block_actions",
-		"team": {
-			"id": "T3S7Y1SGN",
-			"domain": "schooglink"
-		},
-		"user": {
-			"id": "UE4LKKCHF",
-			"username": "amit",
-			"name": "amit",
-			"team_id": "T3S7Y1SGN"
-		},
-		"api_app_id": "ATDGCATDZ",
-		"token": "EIf4E6oUqGN4keNxczLqijRL",
-		"container": {
-			"type": "message",
-			"message_ts": "1581163218.003400",
-			"channel_id": "GTC999C9Z",
-			"is_ephemeral": false
-		},
-		"trigger_id": "945104753815.128270060566.71684f56c5ae927a4edf2b1426369d73",
-		"channel": {
-			"id": "GTC999C9Z",
-			"name": "privategroup"
-		},
-		"message": {
-			"type": "message",
-			"subtype": "bot_message",
-			"text": "This content can't be displayed.",
-			"ts": "1581163218.003400",
-			"bot_id": "BTT6YM55L",
-			"blocks": [{
-				"type": "section",
-				"block_id": "NxP",
-				"text": {
-					"type": "mrkdwn",
-					"text": "Hey, @all I found a new activity here.",
-					"verbatim": false
-				},
-				"accessory": {
-					"type": "overflow",
-					"options": [{
-						"text": {
-							"type": "plain_text",
-							"text": ":heavy_check_mark: Complete",
-							"emoji": true
-						},
-						"value": "complete"
-					}, {
-						"text": {
-							"type": "plain_text",
-							"text": ":x: Delete",
-							"emoji": true
-						},
-						"value": "delete"
-					}],
-					"action_id": "9yZcT"
-				}
-			}, {
-				"type": "divider",
-				"block_id": "EkBEK"
-			}, {
-				"type": "section",
-				"block_id": "Z7I1",
-				"text": {
-					"type": "mrkdwn",
-					"text": "&gt;&gt;&gt; *<https:\\/\\/app.slack.com\\/team\\/UE4LKKCHF|amit>* is working on:\\n\\nhello dude \\n\\n *Activity Status:*\\n:red_circle: In Progress",
-					"verbatim": false
-				}
-			}]
-		},
-		"response_url": "https:\\/\\/hooks.slack.com\\/actions\\/T3S7Y1SGN\\/933095117169\\/RGhwikmZx6Uk5HL5fYRz7EZQ",
-		"actions": [{
-			"type": "overflow",
-			"action_id": "9yZcT",
-			"block_id": "NxP",
-			"selected_option": {
-				"text": {
-					"type": "plain_text",
-					"text": ":heavy_check_mark: Complete",
-					"emoji": true
-				},
-				"value": "complete"
+	"type": "block_actions",
+	"team": {
+		"id": "T3S7Y1SGN",
+		"domain": "schooglink"
+	},
+	"user": {
+		"id": "UE4LKKCHF",
+		"username": "amit",
+		"name": "amit",
+		"team_id": "T3S7Y1SGN"
+	},
+	"api_app_id": "ATDGCATDZ",
+	"token": "EIf4E6oUqGN4keNxczLqijRL",
+	"container": {
+		"type": "message",
+		"message_ts": "1581186334.000600",
+		"channel_id": "GTC999C9Z",
+		"is_ephemeral": false
+	},
+	"trigger_id": "943403578277.128270060566.bdb9f4099dd5835a8723376cb648538a",
+	"channel": {
+		"id": "GTC999C9Z",
+		"name": "privategroup"
+	},
+	"message": {
+		"type": "message",
+		"subtype": "bot_message",
+		"text": "This content can't be displayed.",
+		"ts": "1581186334.000600",
+		"bot_id": "BTT6YM55L",
+		"blocks": [{
+			"type": "section",
+			"block_id": "7kZ",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Hey, @all I found a new activity here.",
+				"verbatim": false
 			},
-			"action_ts": "1581169759.433681"
+			"accessory": {
+				"type": "overflow",
+				"action_id": "update_task",
+				"options": [{
+					"text": {
+						"type": "plain_text",
+						"text": ":heavy_check_mark: Complete",
+						"emoji": true
+					},
+					"value": "complete"
+				}, {
+					"text": {
+						"type": "plain_text",
+						"text": ":x: Delete",
+						"emoji": true
+					},
+					"value": "delete"
+				}]
+			}
+		}, {
+			"type": "divider",
+			"block_id": "66=8"
+		}, {
+			"type": "section",
+			"block_id": "task_message",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*<https:\/\/app.slack.com\/team\/UE4LKKCHF|amit (working on)>*:\n\nHello world",
+				"verbatim": false
+			}
+		}, {
+			"type": "section",
+			"block_id": "task_status",
+			"fields": [{
+				"type": "mrkdwn",
+				"text": "*Activity Status:*",
+				"verbatim": false
+			}, {
+				"type": "mrkdwn",
+				"text": " ",
+				"verbatim": false
+			}, {
+				"type": "mrkdwn",
+				"text": ":red_circle: In Progress",
+				"verbatim": false
+			}]
 		}]
-	}`
+	},
+	"response_url": "https:\/\/hooks.slack.com\/actions\/T3S7Y1SGN\/943383337920\/ZYX9AnVAw9dcCs8THERnsoW4",
+	"actions": [{
+		"type": "overflow",
+		"action_id": "update_task",
+		"block_id": "7kZ",
+		"selected_option": {
+			"text": {
+				"type": "plain_text",
+				"text": ":heavy_check_mark: Complete",
+				"emoji": true
+			},
+			"value": "complete"
+		},
+		"action_ts": "1581186360.438255"
+	}]
+}`
 }
 
 */
@@ -142,6 +160,8 @@ module.exports = async (req, res) => {
       response = JSON.parse(body["payload"]);
   }
 
+  console.log(JSON.stringify(response));
+
   if(body["command"] !== undefined){
 
         result = addTaskForUser(body.text, body.user_id, body.user_name);
@@ -159,12 +179,31 @@ module.exports = async (req, res) => {
 
         const data = {delete_original: true};
 
-        const respond = await to(axios.post(response_url, data)); //Delete message by response URL
+        const messageBlock = messageBlocksScanner(response["message"], "section", "task_message")
+
+        console.log("\n\nmessage block: ", messageBlock);
 
         if(option_value === "delete"){
 
         }
         else if(option_value === "complete"){
+
+            console.log("\n\ncomplete");
+
+            if(messageBlock !== null){
+
+                const messageText = messageBlock["text"]["text"];
+
+                result = finishUserTask(messageText);
+
+                data.response_type = "in_channel";
+                data.blocks = result;
+
+                const respond = await to(axios.post(response_url, data)); //send message by response URL
+
+                console.log("\n\n response:", respond);
+
+            }
             
         }
 
