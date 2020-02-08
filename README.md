@@ -76,6 +76,8 @@ now --prod
 
 10. Now go to oath and permissions page of your slack app and add redirect URLs -- https://serverless-eval.now.sh/oauth.js  (replace https://serverless-eval.now.sh/ with your deployed app URL).
 
+11. Go to interactive components page of your slack bot app. Enable interactivity and set request URL to - https://serverless-eval.now.sh/ (replace https://serverless-eval.now.sh/ with your deployed app URL).
+
 ## Usage
 
 * Invite app to any slack channel and run any of below commands for app --
