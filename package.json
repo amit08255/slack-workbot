@@ -1,0 +1,16 @@
+{
+  "name": "workbot",
+  "version": "1.0.0",
+  "description": "Workbot for slack for logging task you are working on.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Amit Kumar",
+  "license": "ISC",
+  "dependencies": {
+    "micro": "^9.3.4",
+    "node-fetch": "^2.6.0",
+    "vm2": "^3.8.4"
+  }
+}
