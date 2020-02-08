@@ -101,4 +101,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Amit Kumar - [@amit08255](https://twitter.com/amit08255) - amitcute3@gmail.com
 
-Project Link: [https://github.com/amit08255/slack-workbot]https://github.com/amit08255/slack-workbot)
+Project Link: [https://github.com/amit08255/slack-workbot](https://github.com/amit08255/slack-workbot)
