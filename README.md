@@ -64,6 +64,12 @@ now secret add slack-client-secret xxxx
 now
 ```
 
+**Note:** Next time when making changes to app, and you want it to deploy to production URL (which is always same) run below command to deploy --
+
+```sh
+now --prod
+```
+
 8. You will be provided an unique URL for your deployed app. Copy that URL in request URL of your slack app slash command.
 
 9. Now go to oath and permissions page of your slack app and click on - **Install app to workspace**
