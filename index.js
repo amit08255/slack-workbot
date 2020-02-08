@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
 
   console.log(body);
 
-  result = addTaskForUser(body.text);
+  result = addTaskForUser(body.text, body.user_id, body.user_name);
 
   const response_type = 'in_channel'
 
