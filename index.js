@@ -185,6 +185,8 @@ module.exports = async (req, res) => {
 
         if(option_value === "delete"){
 
+            const respond = await to(axios.post(response_url, data)); //delete message by response URL
+
         }
         else if(option_value === "complete"){
 
