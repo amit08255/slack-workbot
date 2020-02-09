@@ -192,6 +192,21 @@ function getTime(){
 }
 
 
+function getTaskId(taskFooter){
+
+	let strArr = taskFooter.split("\n");
+
+	let task = strArr[0].split("task-id:");
+
+	if(task.length > 1){
+		return task[1].trim();
+	}
+	else{
+		return null;
+	}
+}
+
+
 
 //An utility function to be used with async function to handle promise (API calls) with await
 //without writing exception codes
@@ -216,13 +231,15 @@ module.exports = async (req, res) => {
 
   let write2db = false;
 
+  let delete2db = false;
+
   let response = body;
 
   const timestamp = Date.now();
 
   const taskTime = getTime();
 
-  const dbDataStruct = {
+  let dbDataStruct = {
 	_id: "",
 	userid: "", 
 	username: "", 
@@ -271,13 +288,30 @@ module.exports = async (req, res) => {
 		
 		const footerBlock = messageBlocksScanner(response["message"], "context", "task_footer")
 
+		let footerText = "";
+
+		if(footerBlock !== null){
+			footerText = footerBlock["elements"][0]["text"];
+
+			if(footerText !== null && footerText !== undefined){
+				footerText = footerText.replace("task-list", "");
+			}
+		}
+
+		let taskId = getTaskId(footerText);
+
         console.log("\n\nmessage block: ", messageBlock);
 
         if(option_value === "delete"){
 
             data.delete_original = true;
 
-            const respond = await to(axios.post(response_url, data)); //delete message by response URL
+			const respond = await to(axios.post(response_url, data)); //delete message by response URL
+
+			dbDataStruct = {_id: taskId};
+			
+			delete2db = true;
+			write2db = true;
 
         }
         else if(option_value === "complete"){
@@ -287,16 +321,6 @@ module.exports = async (req, res) => {
             if(messageBlock !== null){
 
 				const messageText = messageBlock["text"]["text"];
-				
-				let footerText = "";
-
-				if(footerBlock !== null){
-					footerText = footerBlock["elements"][0]["text"];
-
-					if(footerText !== null && footerText !== undefined){
-						footerText = footerText.replace("task-list", "");
-					}
-				}
 
                 result = finishUserTask(messageText, footerText, taskTime, username);
 
@@ -323,9 +347,15 @@ module.exports = async (req, res) => {
 		// Select the "users" collection from the database
 		const collection = await db.collection(collectionName);
 
-		const insertResponse = await collection.insertOne(dbDataStruct);
+		if(delete2db === true){
 
-		console.log("\n\nInsert response: ", insertResponse);
+			const delResponse = await collection.remove( dbDataStruct );
+			console.log("\n\nDelete response: ", delResponse);
+		}
+		else{
+			const insertResponse = await collection.insertOne(dbDataStruct);
+			console.log("\n\nInsert response: ", insertResponse);
+		}
 
 	}
 
