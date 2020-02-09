@@ -82,7 +82,7 @@ now --prod
 
 * Invite app to any slack channel and run any of below commands for app --
 
-1. `eval YOUR_TASK_DESCRIPTION` -- Add task with given description
+1. `/eval YOUR_TASK_DESCRIPTION` -- Add task with given description
 
 <!-- CONTRIBUTING -->
 ## Contributing
