@@ -177,13 +177,15 @@ module.exports = async (req, res) => {
 
         const response_url = response["response_url"];
 
-        const data = {delete_original: true};
+        const data = {};
 
         const messageBlock = messageBlocksScanner(response["message"], "section", "task_message")
 
         console.log("\n\nmessage block: ", messageBlock);
 
         if(option_value === "delete"){
+
+            data.delete_original = true;
 
             const respond = await to(axios.post(response_url, data)); //delete message by response URL
 
@@ -198,10 +200,12 @@ module.exports = async (req, res) => {
 
                 result = finishUserTask(messageText);
 
+                data.replace_original = true;
+
                 data.response_type = "in_channel";
                 data.blocks = result;
 
-                const respond = await to(axios.post(response_url, data)); //send message by response URL
+                const respond = await to(axios.post(response_url, data)); //sreplace original / update message by response URL
 
                 console.log("\n\n response:", respond);
 
