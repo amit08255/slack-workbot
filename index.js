@@ -181,14 +181,11 @@ function generateUniqueId(userid, timestamp){
 
 
 
-function timestamp2Time(timestamp){
+function getTime(){
 
-	let unix_timestamp = timestamp;
-	// Create a new JavaScript Date object based on the timestamp
-	// multiplied by 1000 so that the argument is in milliseconds, not seconds.
-	let date = new Date(unix_timestamp * 1000);
+	let date = new Date();
 
-	let formattedTime = date.toLocaleString("en-US", {timeZone: "Asia/Kolkata", month: "long", day: "numeric"}) + ", " + date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+	let formattedTime = date.toLocaleString("en-US", {timeZone: "Asia/Kolkata", month: "long", day: "numeric"}) + ", " + date.toLocaleString('en-US', {timeZone: "Asia/Kolkata", hour: 'numeric', minute: 'numeric', hour12: true });
 
 	return formattedTime;
 
@@ -223,6 +220,8 @@ module.exports = async (req, res) => {
 
   const timestamp = Date.now();
 
+  const taskTime = getTime();
+
   const dbDataStruct = {
 	_id: "",
 	userid: "", 
@@ -242,8 +241,6 @@ module.exports = async (req, res) => {
   if(body["command"] !== undefined){
 
 		const taskId = generateUniqueId(body.user_id, timestamp);
-
-		const taskTime = timestamp2Time(timestamp);
 
 		result = addTaskForUser(body.text, body.user_id, body.user_name, taskId, taskTime);
 
