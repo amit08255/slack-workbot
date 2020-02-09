@@ -137,13 +137,6 @@ Overflow menu POST request structure payload contains JSON string --
 */
 
 
-const dbDataStruct = {
-	userid: "", 
-	username: "", 
-	task: "", 
-	created_at: Date.now(), 
-	status: ""
-};
 
 
 const uri = process.env.MONGODB_URL;
@@ -152,6 +145,9 @@ const collectionName = "task_list";
 
 // Create cached connection variable
 let cachedDb = null;
+
+
+
 
 // A function for connecting to MongoDB,
 // taking a single parameter of the connection string
@@ -175,6 +171,31 @@ async function connectToDatabase(uri) {
 }
 
 
+
+
+function generateUniqueId(userid, timestamp){
+
+	const useridHex = Buffer.from(userid, 'utf8').toString('hex');
+	return `${useridHex}${timestamp}`;
+}
+
+
+
+function timestamp2Time(timestamp){
+
+	let unix_timestamp = timestamp;
+	// Create a new JavaScript Date object based on the timestamp
+	// multiplied by 1000 so that the argument is in milliseconds, not seconds.
+	let date = new Date(unix_timestamp * 1000);
+
+	let formattedTime = date.toLocaleString("en-US", {timeZone: "Asia/Kolkata", month: "long", day: "numeric"}) + ", " + date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+
+	return formattedTime;
+
+}
+
+
+
 //An utility function to be used with async function to handle promise (API calls) with await
 //without writing exception codes
 function to(promise) {
@@ -188,14 +209,29 @@ function to(promise) {
  }
 
 
+
+
+
 module.exports = async (req, res) => {
   // Parse code received through req
-  const body = parse(await text(req))
+  const body = parse(await text(req));
   let result;
 
   let write2db = false;
 
   let response = body;
+
+  const timestamp = Date.now();
+
+  const dbDataStruct = {
+	_id: "",
+	userid: "", 
+	username: "", 
+	task: "", 
+	created_at: timestamp, 
+	status: ""
+  };
+
 
   if(body["payload"] !== undefined){
       response = JSON.parse(body["payload"]);
@@ -205,7 +241,11 @@ module.exports = async (req, res) => {
 
   if(body["command"] !== undefined){
 
-        result = addTaskForUser(body.text, body.user_id, body.user_name);
+		const taskId = generateUniqueId(body.user_id, timestamp);
+
+		const taskTime = timestamp2Time(timestamp);
+
+		result = addTaskForUser(body.text, body.user_id, body.user_name, taskId, taskTime);
 
         const data = { response_type: "in_channel", blocks: result}
     
@@ -215,6 +255,7 @@ module.exports = async (req, res) => {
 		dbDataStruct.username = body.user_name;
 		dbDataStruct.task = body.text;
 		dbDataStruct.status = "progress";
+		dbDataStruct._id = taskId;
 
 		write2db = true;
   }
@@ -271,7 +312,9 @@ module.exports = async (req, res) => {
 		// Select the "users" collection from the database
 		const collection = await db.collection(collectionName);
 
-		await collection.insertOne(dbDataStruct);
+		const insertResponse = await collection.insertOne(dbDataStruct);
+
+		console.log("\n\nInsert response: ", insertResponse);
 
 	}
 
