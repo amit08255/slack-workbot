@@ -4,6 +4,7 @@ const { parse } = require('querystring');
 const addTaskForUser = require('./lib/add-task');
 const finishUserTask = require('./lib/task-complete');
 const messageBlocksScanner = require('./utils/messageBlocksScanner');
+const MongoClient = require('mongodb').MongoClient
 
 /*
 Slash command POST request structure --
@@ -136,6 +137,44 @@ Overflow menu POST request structure payload contains JSON string --
 */
 
 
+const dbDataStruct = {
+	userid: "", 
+	username: "", 
+	task: "", 
+	created_at: Date.now(), 
+	status: ""
+};
+
+
+const uri = process.env.MONGODB_URL;
+const dbname = "workbot";
+const collectionName = "task_list";
+
+// Create cached connection variable
+let cachedDb = null;
+
+// A function for connecting to MongoDB,
+// taking a single parameter of the connection string
+async function connectToDatabase(uri) {
+	// If the database connection is cached,
+	// use it instead of creating a new connection
+	if (cachedDb) {
+		return cachedDb
+	}
+
+	// If no connection is cached, create a new one
+	const client = await MongoClient.connect(uri, { useNewUrlParser: true })
+
+	// Select the database through the connection,
+	// using the database path of the connection string
+	const db = await client.db(dbname)
+
+	// Cache the database connection and return the connection
+	cachedDb = db
+	return db
+}
+
+
 //An utility function to be used with async function to handle promise (API calls) with await
 //without writing exception codes
 function to(promise) {
@@ -154,6 +193,8 @@ module.exports = async (req, res) => {
   const body = parse(await text(req))
   let result;
 
+  let write2db = false;
+
   let response = body;
 
   if(body["payload"] !== undefined){
@@ -168,7 +209,14 @@ module.exports = async (req, res) => {
 
         const data = { response_type: "in_channel", blocks: result}
     
-        const respond = await to(axios.post(body.response_url, data)); //send message by response URL
+		const respond = await to(axios.post(body.response_url, data)); //send message by response URL
+
+		dbDataStruct.userid = body.user_id;
+		dbDataStruct.username = body.user_name;
+		dbDataStruct.task = body.text;
+		dbDataStruct.status = "progress";
+
+		write2db = true;
   }
   else if(response["actions"] !== undefined){
 
@@ -214,6 +262,18 @@ module.exports = async (req, res) => {
         }
 
   }
+
+
+	if(write2db === true){
+
+		const db = await connectToDatabase(uri);
+
+		// Select the "users" collection from the database
+		const collection = await db.collection(collectionName);
+
+		await collection.insertOne(dbDataStruct);
+
+	}
 
   res.status(200).send(null);
 }

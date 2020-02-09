@@ -6,7 +6,7 @@
   <h3 align="center">Slack Workbot</h3>
 
   <p align="center">
-    This is simple slack bot designed in NodeJS and Zeit Now which allows you to track tasks you and other members of your team are working on directly from slack. <b>Under development</b>
+    This is simple slack bot designed in NodeJS and Zeit Now which allows you to track tasks you and other members of your team are working on directly from slack. It uses Mongodb for storing task list. <b>Under development</b>
     <br />
   </p>
 </p>
@@ -16,6 +16,7 @@ This project is designed with technologies listed below -
 * [NodeJS](https://nodejs.org)
 * [Zeit Now](https://zeit.co)
 * [Slack](https://slack.com)
+* [MongoDB](https://mongodb.com)
 
 
 
@@ -24,6 +25,8 @@ This project is designed with technologies listed below -
 
 First you need to install **NodeJS** and **npm** on your computer.
 Then install **Zeit now cli** on your computer.
+Then you need to setup your MongoDB server, we are going to use **MongoDB Atlas** for easy configuration.
+Create an account for **MongoDB Atlas** and setup free tier cluster for getting started.
 Then to get started with this project, you just need to clone or download this repository on your computer.
 
 
@@ -77,6 +80,26 @@ now --prod
 10. Now go to oath and permissions page of your slack app and add redirect URLs -- https://serverless-eval.now.sh/oauth.js  (replace https://serverless-eval.now.sh/ with your deployed app URL).
 
 11. Go to interactive components page of your slack bot app. Enable interactivity and set request URL to - https://serverless-eval.now.sh/ (replace https://serverless-eval.now.sh/ with your deployed app URL).
+
+12. Login to your **MongoDB Atlas** account and go to Database Access page and add new user. Set user privilege to - **Read and write any database** setup authentication method as - Password. Create username and password and click on - **Add User**
+
+13. When MongoDB atlas is created, go to your MongoDB Atlas clusters list and click on **Connect** to created cluster. It will ask you to setup list of whitelist IP address before you can connect. Use -- **0.0.0.0/0** as whitelist IP address. Click on - **Choose connection method**
+
+14. In choose connection method wizard of MongoDB atlas, choose -- **Connect your application** Choose driver -- **NodeJS** and version -- **3.0 or later**. Copy connection string and replace **<password>** in connection string (with one you used when adding user for database).
+
+15. Now in your MongoDB Atlas cluster list, click on - **COLLECTIONS** on your created cluster. Click on - **Add your own data**. Enter database name and collection name to create database. Set database name -- **workbot** collection name -- **task_list**
+
+16. Now run below command to add connection string for MongoDB securely to work with Zeit Now --
+
+```sh
+now secret add mongodb-url "mongodb_connection_string"
+```
+
+17. Now deploy your app again with command --
+
+```sh
+now --prod
+```
 
 ## Usage
 
