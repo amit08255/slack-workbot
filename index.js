@@ -257,21 +257,24 @@ module.exports = async (req, res) => {
 
   if(body["command"] !== undefined){
 
-		const taskId = generateUniqueId(body.user_id, timestamp);
+		if(body["command"] === "/task-add"){
 
-		result = addTaskForUser(body.text, body.user_id, body.user_name, taskId, taskTime);
+			const taskId = generateUniqueId(body.user_id, timestamp);
 
-        const data = { response_type: "in_channel", blocks: result}
-    
-		const respond = await to(axios.post(body.response_url, data)); //send message by response URL
+			result = addTaskForUser(body.text, body.user_id, body.user_name, taskId, taskTime);
 
-		dbDataStruct.userid = body.user_id;
-		dbDataStruct.username = body.user_name;
-		dbDataStruct.task = body.text;
-		dbDataStruct.status = "progress";
-		dbDataStruct._id = taskId;
+			const data = { response_type: "in_channel", blocks: result}
+		
+			const respond = await to(axios.post(body.response_url, data)); //send message by response URL
 
-		write2db = true;
+			dbDataStruct.userid = body.user_id;
+			dbDataStruct.username = body.user_name;
+			dbDataStruct.task = body.text;
+			dbDataStruct.status = "progress";
+			dbDataStruct._id = taskId;
+
+			write2db = true;
+		}
   }
   else if(response["actions"] !== undefined){
 

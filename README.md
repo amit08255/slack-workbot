@@ -47,7 +47,7 @@ git clone https://github.com/amit08255/slack-workbot.git
 
 2. On the app’s Basic Information page, we find that Slack allows us to add features to our app.
 
-3. Create a new Slash Command called `/eval`. Each time someone types in `/eval your text`, Slack will send a POST request to a Request URL that we specify. We need to process the request and respond with the result we get from executing the code. 
+3. Create a new Slash Command called `/task-add`. Each time someone types in `/task-add task_description`, Slack will send a POST request to a Request URL that we specify. Task with given description will be added to your task list when above command is used.
 For now set request URL to - https://serverless-eval.now.sh/
 
 4. Enter a short description for slash command and click on - Save
@@ -105,7 +105,7 @@ now --prod
 
 * Invite app to any slack channel and run any of below commands for app --
 
-1. `/eval YOUR_TASK_DESCRIPTION` -- Add task with given description
+1. `/task-add YOUR_TASK_DESCRIPTION` -- Add task with given description
 
 <!-- CONTRIBUTING -->
 ## Contributing
