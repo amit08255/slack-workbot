@@ -261,11 +261,15 @@ module.exports = async (req, res) => {
         const selected_option = response["actions"][0]["selected_option"];
         const option_value = selected_option["value"];
 
-        const response_url = response["response_url"];
+		const response_url = response["response_url"];
+		
+		const username = response["user"]["username"];
 
         const data = {};
 
-        const messageBlock = messageBlocksScanner(response["message"], "section", "task_message")
+		const messageBlock = messageBlocksScanner(response["message"], "section", "task_message")
+		
+		const footerBlock = messageBlocksScanner(response["message"], "context", "task_footer")
 
         console.log("\n\nmessage block: ", messageBlock);
 
@@ -282,9 +286,19 @@ module.exports = async (req, res) => {
 
             if(messageBlock !== null){
 
-                const messageText = messageBlock["text"]["text"];
+				const messageText = messageBlock["text"]["text"];
+				
+				let footerText = "";
 
-                result = finishUserTask(messageText);
+				if(footerBlock !== null){
+					footerText = footerBlock["elements"][0]["text"];
+
+					if(footerText !== null && footerText !== undefined){
+						footerText = footerText.replace("task-list", "");
+					}
+				}
+
+                result = finishUserTask(messageText, footerText, taskTime, username);
 
                 data.replace_original = true;
 
