@@ -9,7 +9,7 @@
   "author": "Amit Kumar",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "micro": "^9.3.4",
     "mongodb": "^3.5.2",
     "node-fetch": "^2.6.0",
